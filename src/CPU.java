@@ -8,6 +8,7 @@ import java.util.*;
 public class CPU {
 
     public static Integer[] MainMemory = new Integer[200];
+    public static HashMap<String, Integer> dataLocals = new HashMap<String, Integer>();
     public int pc = 0;
     public int alu = 0;
     public int acc = 0;
@@ -17,6 +18,7 @@ public class CPU {
     public int cu = 0;
     public static void main(String[] args) {
         loadToMemory("base");
+        new CPU().Fetch();
     }
 
 
@@ -32,7 +34,7 @@ public class CPU {
         instructSet.put("BRA", 7);//Branched to the given data location no matter what
         instructSet.put("DAT", 8);//Allocates a data location with the given name
 
-        HashMap<String, Integer> dataLocals = new HashMap<String, Integer>();
+
 
         InputStream inputStream = CPU.class.getClassLoader().getResourceAsStream("base.txt");
         Scanner readLine = new Scanner(inputStream);
@@ -105,11 +107,19 @@ public class CPU {
 
 
     }
+
     public void Fetch(){
         mar = pc;
-        cir = MainMemory[mar];
-        cu = cir;
-        pc++;
+        if(MainMemory[mar] == null){
+            return;
+        }
+        else{
+            cir = MainMemory[mar];
+            cu = cir;
+            pc++;
+            Decode();
+        }
+
     }
 
     public void Decode(){
@@ -117,25 +127,30 @@ public class CPU {
         int operand = cu%1000;
         cir = opcode;
         mdr = operand;
+        Execute();
     }
 
     public void Execute(){
         switch (cir){
             case 1:
                 acc = MainMemory[mdr];
+                System.out.println("Loaded data to memory");
                 break;
             case 2:
                 MainMemory[mdr] = acc;
+                System.out.println("Stored data to memory");
                 break;
             case 3:
                 alu = MainMemory[mdr];
                 alu +=acc;
                 acc = alu;
+                System.out.println("Added to the accumulator");
                 break;
             case 4:
                 alu = acc;
                 alu -= MainMemory[mdr];
                 acc = alu;
+                System.out.println("Subtracted from the accumulator");
                 break;
             case 5:
                 //Branch to the given data location if the value in the acc is 0
@@ -145,9 +160,15 @@ public class CPU {
             case 7:
                 break;
             case 9:
-                System.out.println(acc);
+                System.out.println("OUTPUT: " + acc);
                 break;
         }
+        Fetch();
     }
 }
+
+//PROBLEM: CANNOT IMMEDIATE ACCESS AS CPU ASSUMES DIRECT ADDRESSING ALWAYS
+//SOLUTION: A WAY OF INDICATING A DIFFERENCE BETWEEN DATA LOCATIONS AND IMMEDIATE DATA
+//POSSIBLE SOLUTION: USE A CHECK TO SEE IF NUMBER IS A KNOWN DATA LOCATION
+//POSSIBLE SOLUTION: IMMEDIATE DATA IS NEGATIVE NUMBERS, DATA LOCATION ARE POSITIVE FC,FDDDDDDDDDDDDDINT
 
