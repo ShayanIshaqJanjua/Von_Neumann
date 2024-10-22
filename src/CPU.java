@@ -1,3 +1,5 @@
+import com.sun.tools.javac.Main;
+
 import javax.print.DocFlavor;
 import java.lang.*;
 import java.io.*;
@@ -9,7 +11,7 @@ public class CPU {
     public int pc = 0;
     public int alu = 0;
     public int acc = 0;
-    public String cir = "0";
+    public int cir = 0;
     public int mdr = 0;
     public int mar = 0;
     public int cu = 0;
@@ -21,15 +23,14 @@ public class CPU {
     private static void loadToMemory(String f) {
 
         HashMap<String, Integer> instructSet = new HashMap<String, Integer>(); // Holds the instruction set
-        instructSet.put("LDA", 0);//Loads data from the data location given to the ACC
-        instructSet.put("STA", 1);//Stores data from the ACC to the given data location
+        instructSet.put("LDA", 1);//Loads data from the data location given to the ACC
+        instructSet.put("STA", 2);//Stores data from the ACC to the given data location
         instructSet.put("ADD", 3);//Adds the value from the given data location to the ACC
         instructSet.put("SUB", 4);//Subtracts the data from the given data location from the ACC
-        instructSet.put("OUT", 5);//Outputs the content of the ACC
-        instructSet.put("BRZ", 6);//Branches to the given instruction if the content in the ACC is 0
-        instructSet.put("BRP", 7);//Branches to the given instruction id the content in the ACC is greater than 0
-        instructSet.put("BRA", 8);//Branched to the given data location no matter what
-        instructSet.put("DAT", 9);//Allocates a data location with the given name
+        instructSet.put("BRZ", 5);//Branches to the given instruction if the content in the ACC is 0
+        instructSet.put("BRP", 6);//Branches to the given instruction id the content in the ACC is greater than 0
+        instructSet.put("BRA", 7);//Branched to the given data location no matter what
+        instructSet.put("DAT", 8);//Allocates a data location with the given name
 
         HashMap<String, Integer> dataLocals = new HashMap<String, Integer>();
 
@@ -41,70 +42,112 @@ public class CPU {
         int currIndex = 0;
         while (readLine.hasNextLine()) {//loops through every line in the program
             String output = readLine.nextLine();
-            System.out.println(output);
             temp[currIndex] = output;//adds the line into the string ar
             currIndex++;//increments the counter
         }
 
 
-        for(int i = 0; i < temp.length - 1; i++) {//loops through each line of code
-            String[] s = temp[i].split(" ");//Lexical Analysis, split code into tokens
-            System.out.println(s[0]);
-            if(s[0] == "DAT"){//checks if the current line of code declares a data location
-            dataLocals.put(s[0], i);//saves the name of the data location used with the location address
+        for (int i = 0; i < temp.length - 1; i++) { // loops through each line of code
+            if (temp[i] == null) {
+            } else {
+                if (temp[i].equals("OUT")) {
+                } else {
+                    String[] s = temp[i].split(" "); // Lexical Analysis, split code into tokens
+                    if (s[0].equals("DAT")) {
+                        dataLocals.put(s[1], i + 1); // saves the name of the data location used with the location address
+                    }
+                }
             }
-
         }
+
+
 
         int opcode =0;//to store the opcode
         int operand = 0;//to store the operand
         int num = 0;
-        for(String l : temp){//loops through every line of code
-            String[] s = temp[i].split(" ");//Lexical Analysis, split code into tokens
-            System.out.println(s[0]);
-            if(dataLocals.get(s[1]) != null ){//checks if a known data location is referenced
-                operand = dataLocals.get(s[1]);//replaces the name of the location with the address in the code
-            }
-            else{
-                try{
-                    operand = Integer.parseInt(s[1]);//adds the immediate value of the integer provided
-                }
-                catch(NumberFormatException e){
-                    System.out.println("Error on line " + num + " relating to the data location reference.");
-                }
-
+        for(String l : temp){//loops through every element of the temp array
+            if(l == null){
 
             }
-            try{
-                opcode = instructSet.get(s[0])*1000;//gets the integer value of the instruction from the instruction set and adds it to the opcode
+            else {
+                if (l.equals("OUT")) {
+                    MainMemory[num] = 9999;
+                } else {
+                    String[] s = l.split(" ");//Lexical Analysis, split code into tokens
+                    if (dataLocals.get(s[1]) != null) {//checks if a known data location is referenced
+                        operand = dataLocals.get(s[1]);//replaces the name of the location with the address in the code
+                    } else {
+                        try {
+                            operand = Integer.parseInt(s[1]);//adds the immediate value of the integer provided
+                        } catch (NumberFormatException e) {
+                            System.out.println("Error on line " + num + " relating to the data location reference.");
+                        }
+
+
+                    }
+                    try {
+                        opcode = instructSet.get(s[0]) * 1000;//gets the integer value of the instruction from the instruction set and adds it to the opcode
+                    } catch (NullPointerException e) {
+                        System.out.println("Error on line " + num + " relating to the instruction spelling (Ensure all characters are CAPS).");
+                    }
+                    MainMemory[num] = opcode + operand;//combines the opcode and operand and loads it into the main memory
+                    //increments the data address
+                }
             }
-            catch(NullPointerException e){
-                System.out.println("Error on line " + num + " relating to the instruction spelling (Ensure all characters are CAPS).");
+            num++;
+        }
+        for(int i = 0; i < MainMemory.length; i++) {
+            if (MainMemory[i] != null) {
+                System.out.println(MainMemory[i]);
             }
-            MainMemory[num] = opcode+operand;//combines the opcode and operand and loads it into the main memory
-            num++;//increments the data address
         }
 
 
 
     }
     public void Fetch(){
-       // mar = pc;
-        //cir = MainMemory[mar].toString();
-        //cu = cir;
-        //pc++;
+        mar = pc;
+        cir = MainMemory[mar];
+        cu = cir;
+        pc++;
     }
 
     public void Decode(){
-        //String[] inst =cir.split(" ");
-        //cir = opcode;
-       // mdr = operand;
+        int opcode = cu/1000;
+        int operand = cu%1000;
+        cir = opcode;
+        mdr = operand;
     }
 
     public void Execute(){
-       // switch (cir){
-       //     case 00:
-
-       // }
+        switch (cir){
+            case 1:
+                acc = MainMemory[mdr];
+                break;
+            case 2:
+                MainMemory[mdr] = acc;
+                break;
+            case 3:
+                alu = MainMemory[mdr];
+                alu +=acc;
+                acc = alu;
+                break;
+            case 4:
+                alu = acc;
+                alu -= MainMemory[mdr];
+                acc = alu;
+                break;
+            case 5:
+                //Branch to the given data location if the value in the acc is 0
+                break;
+            case 6:
+                break;
+            case 7:
+                break;
+            case 9:
+                System.out.println(acc);
+                break;
+        }
     }
 }
+
