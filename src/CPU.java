@@ -123,8 +123,8 @@ public class CPU {
     }
 
     public void Decode(){
-        int opcode = cu/1000;
-        int operand = cu%1000;
+        int opcode = cu&0b1111000000000;
+        int operand = cu&0b0000111111111;
         cir = opcode;
         mdr = operand;
         Execute();
