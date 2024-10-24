@@ -18,7 +18,7 @@ public class CPU {
     public int cu = 0;
     public static void main(String[] args) {
         loadToMemory("base");
-        //new CPU().Fetch();
+        new CPU().Fetch();
     }
 
 
@@ -118,52 +118,70 @@ public class CPU {
             cu = cir;
             pc++;
             Decode();
+            Fetch();
         }
 
     }
 
     public void Decode(){
-        int opcode = cu&0b1111000000000;
+        int opcode = (cu&0b1111000000000)>>9;
         int operand = cu&0b0000111111111;
         cir = opcode;
         mdr = operand;
         Execute();
+        Decode();
     }
 
     public void Execute(){
         switch (cir){
-            case 1:
-                acc = MainMemory[mdr];
+            case 0b0001:
+                if((mdr&0b100000000) == 0b100000000 ){
+                    acc = MainMemory[mdr&0b011111111];
+                }
+                else{
+                    acc = mdr&0b011111111;
+                }
                 System.out.println("Loaded data to memory");
                 break;
-            case 2:
-                MainMemory[mdr] = acc;
+            case 0b0010:
+                MainMemory[mdr & 0b011111111] = acc;
                 System.out.println("Stored data to memory");
                 break;
-            case 3:
-                alu = MainMemory[mdr];
+            case 0b0011:
+                if((mdr&0b100000000) == 0b100000000 ){
+                    alu = MainMemory[mdr&0b011111111];
+                }
+                else{
+                    alu = mdr&0b011111111;
+                }
                 alu +=acc;
                 acc = alu;
                 System.out.println("Added to the accumulator");
                 break;
-            case 4:
+            case 0b0100:
                 alu = acc;
-                alu -= MainMemory[mdr];
+                if((mdr&0b100000000) == 0b100000000 ){
+                    alu -= MainMemory[mdr&0b011111111];
+                }
+                else{
+                    alu -= mdr&0b011111111;
+                }
                 acc = alu;
                 System.out.println("Subtracted from the accumulator");
                 break;
-            case 5:
+            case 0b0101:
                 //Branch to the given data location if the value in the acc is 0
                 break;
-            case 6:
+            case 0b0110:
                 break;
-            case 7:
+            case 0b0111:
                 break;
-            case 9:
+            case 0b1111:
                 System.out.println("OUTPUT: " + acc);
                 break;
         }
         Fetch();
+        Execute();
     }
 }
 
