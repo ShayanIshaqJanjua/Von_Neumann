@@ -18,21 +18,21 @@ public class CPU {
     public int cu = 0;
     public static void main(String[] args) {
         loadToMemory("base");
-        new CPU().Fetch();
+        //new CPU().Fetch();
     }
 
 
     private static void loadToMemory(String f) {
 
         HashMap<String, Integer> instructSet = new HashMap<String, Integer>(); // Holds the instruction set
-        instructSet.put("LDA", 1);//Loads data from the data location given to the ACC
-        instructSet.put("STA", 2);//Stores data from the ACC to the given data location
-        instructSet.put("ADD", 3);//Adds the value from the given data location to the ACC
-        instructSet.put("SUB", 4);//Subtracts the data from the given data location from the ACC
-        instructSet.put("BRZ", 5);//Branches to the given instruction if the content in the ACC is 0
-        instructSet.put("BRP", 6);//Branches to the given instruction id the content in the ACC is greater than 0
-        instructSet.put("BRA", 7);//Branched to the given data location no matter what
-        instructSet.put("DAT", 8);//Allocates a data location with the given name
+        instructSet.put("LDA", 0b0001);//Loads data from the data location given to the ACC
+        instructSet.put("STA", 0b0010);//Stores data from the ACC to the given data location
+        instructSet.put("ADD", 0b0011);//Adds the value from the given data location to the ACC
+        instructSet.put("SUB", 0b0100);//Subtracts the data from the given data location from the ACC
+        instructSet.put("BRZ", 0b0101);//Branches to the given instruction if the content in the ACC is 0
+        instructSet.put("BRP", 0b0110);//Branches to the given instruction id the content in the ACC is greater than 0
+        instructSet.put("BRA", 0b0111);//Branched to the given data location no matter what
+        instructSet.put("DAT", 0b1000);//Allocates a data location with the given name
 
 
 
@@ -73,11 +73,11 @@ public class CPU {
             }
             else {
                 if (l.equals("OUT")) {
-                    MainMemory[num] = 9999;
+                    MainMemory[num] = 0b1111000000000;
                 } else {
                     String[] s = l.split(" ");//Lexical Analysis, split code into tokens
                     if (dataLocals.get(s[1]) != null) {//checks if a known data location is referenced
-                        operand = dataLocals.get(s[1]);//replaces the name of the location with the address in the code
+                        operand = dataLocals.get(s[1]) | 0b100000000;//replaces the name of the location with the address in the code
                     } else {
                         try {
                             operand = Integer.parseInt(s[1]);//adds the immediate value of the integer provided
@@ -88,11 +88,11 @@ public class CPU {
 
                     }
                     try {
-                        opcode = instructSet.get(s[0]) * 1000;//gets the integer value of the instruction from the instruction set and adds it to the opcode
+                        opcode = instructSet.get(s[0])<<9;//gets the integer value of the instruction from the instruction set and adds it to the opcode
                     } catch (NullPointerException e) {
                         System.out.println("Error on line " + num + " relating to the instruction spelling (Ensure all characters are CAPS).");
                     }
-                    MainMemory[num] = opcode + operand;//combines the opcode and operand and loads it into the main memory
+                    MainMemory[num] = opcode | operand;//combines the opcode and operand and loads it into the main memory
                     //increments the data address
                 }
             }
@@ -100,7 +100,7 @@ public class CPU {
         }
         for(int i = 0; i < MainMemory.length; i++) {
             if (MainMemory[i] != null) {
-                System.out.println(MainMemory[i]);
+                System.out.println(Integer.toBinaryString(MainMemory[i]));
             }
         }
 
