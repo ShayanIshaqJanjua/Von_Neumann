@@ -110,15 +110,18 @@ public class CPU {
 
     public void Fetch(){
         mar = pc;
+        System.out.println("Address copied from Program Counter to memory address register.");
         if(MainMemory[mar] == null){
             return;
         }
         else{
             cir = MainMemory[mar];
+            System.out.println("Copied the instruction address from the ");
             cu = cir;
+            System.out.println("Instruction sent to Control Unit");
             pc++;
+            System.out.println("Program counter incremented.");
             Decode();
-            Fetch();
         }
 
     }
@@ -126,10 +129,16 @@ public class CPU {
     public void Decode(){
         int opcode = (cu&0b1111000000000)>>9;
         int operand = cu&0b0000111111111;
-        cir = opcode;
-        mdr = operand;
-        Execute();
-        Decode();
+        if(opcode == 0b1000){
+            return;
+        }
+        else {
+            System.out.println("Instruction decoded.");
+            cir = opcode;
+            mdr = operand;
+            System.out.println("Instruction sent to Current Instruction Register.");
+            Execute();
+        }
     }
 
     public void Execute(){
@@ -137,37 +146,39 @@ public class CPU {
             case 0b0001:
                 if((mdr&0b100000000) == 0b100000000 ){
                     acc = MainMemory[mdr&0b011111111];
+                    System.out.println("Data at location " + mdr + " Loaded into Accumulator.");
                 }
                 else{
                     acc = mdr&0b011111111;
+                    System.out.println("Value " + mdr + " loaded into accumulator.");
                 }
-                System.out.println("Loaded data to memory");
                 break;
             case 0b0010:
                 MainMemory[mdr & 0b011111111] = acc;
-                System.out.println("Stored data to memory");
+                System.out.println("Stored data from accumulator to memory location " + mdr);
                 break;
             case 0b0011:
                 if((mdr&0b100000000) == 0b100000000 ){
                     alu = MainMemory[mdr&0b011111111];
+                    System.out.println("Added data from memory location " + mdr + " to accumulator.");
                 }
                 else{
                     alu = mdr&0b011111111;
+                    System.out.println("Value " + mdr + " added to accumulator.");
                 }
                 alu +=acc;
                 acc = alu;
-                System.out.println("Added to the accumulator");
-                break;
             case 0b0100:
                 alu = acc;
                 if((mdr&0b100000000) == 0b100000000 ){
                     alu -= MainMemory[mdr&0b011111111];
+                    System.out.println("Subtracted data from memory location " + mdr + " to accumulator.");
                 }
                 else{
                     alu -= mdr&0b011111111;
+                    System.out.println("Subtracted value " + mdr + " to accumulator.");
                 }
                 acc = alu;
-                System.out.println("Subtracted from the accumulator");
                 break;
             case 0b0101:
                 //Branch to the given data location if the value in the acc is 0
@@ -181,7 +192,6 @@ public class CPU {
                 break;
         }
         Fetch();
-        Execute();
     }
 }
 
