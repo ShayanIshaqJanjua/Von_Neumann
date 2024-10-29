@@ -20,7 +20,7 @@ public class CPU {
     public int cu = 0;
     public static void main(String[] args) {
         loadToMemory("base");
-        //new CPU().Fetch();
+        new CPU().Fetch();
     }
 
 
@@ -60,7 +60,7 @@ public class CPU {
                     if(!instructSet.containsKey(s[0])) {
                         branches.put(s[0], i);
                     }
-                    if (s[0].equals("DAT")) {
+                    if (s[0].equals("DAT") || s[0].equals("BRP") || s[0].equals("BRZ") || s[0].equals("BRA")) {
                         dataLocals.put(s[1], i); // saves the name of the data location used with the location address
                     }
                 }
@@ -103,7 +103,20 @@ public class CPU {
 
     }
     public static int Instruction(String[] s) {
-        return 0;
+        int opcode = instructSet.get(s[0])<<9;
+        int operand =0;
+        if (dataLocals.keySet().contains(s[1])) {
+            operand = dataLocals.get(s[1]) | 0b100000000;
+        }
+        else{
+            try{
+                System.out.println(s[1]);
+                operand = Integer.parseInt(s[1]);
+            }catch(Exception e){
+                System.out.println("Error with data Location.");
+            }
+        }
+        return opcode | operand;
     }
     public static int branchedInstruction(String[] strings) {
         int opcode = 0;
@@ -128,7 +141,7 @@ public class CPU {
         return opcode |operand;
     }
 
-    public void OldLoadToMemory() {
+    /*public void OldLoadToMemory() {
         String[] s = l.split(" ");//Lexical Analysis, split code into tokens
         if(branches.get(s[0])!= null){
             branched = true;
@@ -171,7 +184,7 @@ public class CPU {
         }
         MainMemory[num] = opcode | operand;//combines the opcode and operand and loads it into the main memory
 
-    }
+    }*/
 
     public void Fetch(){
         mar = pc;
