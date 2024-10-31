@@ -36,7 +36,7 @@ public class CPU {
 
 
 
-        InputStream inputStream = CPU.class.getClassLoader().getResourceAsStream("base.txt");
+        InputStream inputStream = CPU.class.getClassLoader().getResourceAsStream(f + ".txt");
         assert inputStream != null;
         Scanner readLine = new Scanner(inputStream);
 
@@ -54,8 +54,7 @@ public class CPU {
             if (temp[i] == null) {
                 return;
             } else {
-                if (temp[i].equals("OUT")) {
-                } else {
+                if(!(temp[i].equals("OUT"))) {
                     String[] s = temp[i].split(" "); // Lexical Analysis, split code into tokens
                     if (!instructSet.containsKey(s[0])) {
                         branches.put(s[0], i );
@@ -196,10 +195,7 @@ public class CPU {
     public void Fetch(){
         mar = pc;
         //      System.out.println("Address copied from Program Counter to memory address register.");
-        if(MainMemory[mar] == 0){
-
-        }
-        else{
+        if(MainMemory[mar]!=0){
             cir = MainMemory[mar];
             //System.out.println("Copied the instruction address from the ");
             cu = cir;
@@ -214,10 +210,7 @@ public class CPU {
     public void Decode(){
         int opcode = (cu&0b1111000000000)>>9;
         int operand = cu&0b0000111111111;
-        if(opcode == 0b1000){
-            return;
-        }
-        else {
+        if(opcode!= 0b1000){
             //System.out.println("Instruction decoded.");
             cir = opcode;
             mdr = operand;
