@@ -1,16 +1,14 @@
-import com.sun.tools.javac.Main;
 
-import javax.print.DocFlavor;
+import java.io.InputStream;
 import java.lang.*;
-import java.io.*;
 import java.util.*;
 
 public class CPU {
 
     public static int[] MainMemory = new int[200];
-    public static HashMap<String, Integer> dataLocals = new HashMap<String, Integer>();
-    public static HashMap<String, Integer> branches = new HashMap<String, Integer>();
-    static HashMap<String, Integer> instructSet = new HashMap<String, Integer>(); // Holds the instruction set
+    public static HashMap<String, Integer> dataLocals = new HashMap<>();
+    public static HashMap<String, Integer> branches = new HashMap<>();
+    static HashMap<String, Integer> instructSet = new HashMap<>(); // Holds the instruction set
     public int pc = 0;
     public byte alu = 0;
     public byte acc = 0;
@@ -54,6 +52,7 @@ public class CPU {
 
         for (int i = 0; i < temp.length - 1; i++) { // loops through each line of code
             if (temp[i] == null) {
+                return;
             } else {
                 if (temp[i].equals("OUT")) {
                 } else {
@@ -69,7 +68,7 @@ public class CPU {
         }
 
 
-        int line = 0;
+
         int num = 0;
         for(String l : temp){//loops through every element of the temp array
             if(l == null){
@@ -198,7 +197,7 @@ public class CPU {
         mar = pc;
         //      System.out.println("Address copied from Program Counter to memory address register.");
         if(MainMemory[mar] == 0){
-            return;
+
         }
         else{
             cir = MainMemory[mar];
@@ -252,7 +251,7 @@ public class CPU {
                     System.out.println("Value " + (mdr&0b011111111) + " added to accumulator.");
                 }
 
-                alu = (byte) fullAdder(alu,acc);
+                alu = fullAdder(alu,acc);
                 acc=alu;
                 break;
             case 0b0100:
@@ -316,12 +315,12 @@ public class CPU {
 
 //PROBLEM: CANNOT READ BRANCH STATEMENTS OR BRANCHED AREAS OF CODE
 //SOLUTION: INTEGRATE SOME WAY OF CHECKING IF A LINE OF CODE CONTAINS A BRANCH
-//LIKELY SOLUTION [WORKED]: SPLIT THE LOAD TO MEMORY FUNCTION INTO SEPARATE FUNCTION WITH SOME DESIGNED FOR BRANCHED AND SOME FOR UNBRANCHED CODE
+//LIKELY SOLUTION [WORKED]: SPLIT THE LOAD TO MEMORY FUNCTION INTO SEPARATE FUNCTION WITH SOME DESIGNED FOR BRANCHED AND SOME FOR NOT BRANCHED CODE
 
 //PROBLEM: NEED TO SUBTRACT TO BINARY VALUES FROM EACH OTHER
 //SOLUTION: CONVERT BOTH BINARY INTEGERS INTO 2'S COMPLIMENT, THEN MAKE THE NUMBER WE ARE TAKING AWAY INTO A NEGATIVE NUMBER, THEN USE THE FULL ADDER FUNCTION
 //LIKELY SOLUTION: CYCLE THROUGH BOTH INTEGERS BITS, CONVERTING THEM INTO ONES COMPLEMENT AND THEN ADDING 1 TO THEM USING THE ADDER FUNCTION, THEN FLIPPING THE INTEGER BRING TAKEN AWAY TO MAKE IT NEGATIVE, THEN PUTTING BOTH BINARIES THROUGH THE ADDER FUNCTION AGAIN
-//SOLUTION AMENDMENT [TOOK FORWARD]: JAVA AUTOMATICALLY SAVES INTS IN 2S COMPLEMENT AND SO  NO CONVERSION TO 2S COMPLIMENT IS NEEDED, ALL I NEED TO DO IS FLIP AND ADD
+//SOLUTION AMENDMENT [TOOK FORWARD]: JAVA AUTOMATICALLY SAVES INTEGERS IN 2S COMPLEMENT AND SO  NO CONVERSION TO 2S COMPLIMENT IS NEEDED, ALL I NEED TO DO IS FLIP AND ADD
 
 //PROBLEM: SUBTRACTION NOT WORKING, MOST LIKELY DUE TO NUMBER OF BITS DURING CALCULATIONS
 //SOLUTION: A WAY OF ENSURING THE NUMBER OF BITS DO NOT INTERFERE WITH THE SUBTRACTION
