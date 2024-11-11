@@ -16,14 +16,14 @@ public class CPU {
     public int mdr = 0;
     public int mar = 0;
     public int cu = 0;
+
     public static void main(String[] args) {
-        loadToMemory("base");
+        loadToMemory("factorial");
         new CPU().Fetch();
     }
 
 
     private static void loadToMemory(String f) {
-
 
         instructSet.put("LDA", 0b0001);//Loads data from the data location given to the ACC
         instructSet.put("STA", 0b0010);//Stores data from the ACC to the given data location
@@ -35,25 +35,24 @@ public class CPU {
         instructSet.put("DAT", 0b1000);//Allocates a data location with the given name
 
 
-
         InputStream inputStream = CPU.class.getClassLoader().getResourceAsStream(f + ".txt");
         assert inputStream != null;
         Scanner readLine = new Scanner(inputStream);
 
-        String[] temp = new String[MainMemory.length];//initialises string array to hold lines of code
+        String[] temp = new String[200];//initialises string array to hold lines of code
 
         int currIndex = 0;
         while (readLine.hasNextLine()) {//loops through every line in the program
             String output = readLine.nextLine();
+            System.out.println(output);
             temp[currIndex] = output;//adds the line into the string ar
             currIndex++;//increments the counter
         }
 
 
+
         for (int i = 0; i < temp.length - 1; i++) { // loops through each line of code
-            if (temp[i] == null) {
-                return;
-            } else {
+            if (temp[i] != null) {
                 if(!(temp[i].equals("OUT"))) {
                     String[] s = temp[i].split(" "); // Lexical Analysis, split code into tokens
                     if (!instructSet.containsKey(s[0])) {
@@ -76,6 +75,7 @@ public class CPU {
             else {
                 if (l.equals("OUT")) {
                     MainMemory[num] = 0b1111000000000;
+
                 }
                 else {
                     String[] s = l.split(" ");
@@ -95,9 +95,8 @@ public class CPU {
 
 
         for(int i = 0; i < MainMemory.length; i++) {
-            if (MainMemory[i] == 0) {
-                System.out.println( i + ". " + Integer.toBinaryString(MainMemory[i]));
-            }
+
+                System.out.println(i + ". " + Integer.toBinaryString(MainMemory[i]));
         }
 
 
@@ -114,7 +113,6 @@ public class CPU {
             try{
                 operand = Integer.parseInt(s[1]);
             }catch(Exception e){
-                System.out.println(s[1]);
                 System.out.println("Error with data Location.");
             }
         }
@@ -250,11 +248,11 @@ public class CPU {
             case 0b0100:
                 if((mdr&0b100000000) == 0b100000000 ){
                     alu = (byte) MainMemory[mdr&0b011111111];
-                    System.out.println("Subtracted data from memory location " + (mdr&0b011111111) + " to accumulator.");
+                    System.out.println("Subtracted data from memory location " + (mdr&0b011111111) + " from the accumulator.");
                 }
                 else{
                     alu = (byte) (mdr&0b011111111);
-                    System.out.println("Subtracted value " + (mdr&0b011111111) + " to accumulator.");
+                    System.out.println("Subtracted value " + (mdr&0b011111111) + " from accumulator.");
                 }
                 alu =Compliment2(alu);
                 alu = fullAdder(alu,acc);
