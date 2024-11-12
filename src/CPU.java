@@ -1,5 +1,3 @@
-
-import java.io.Console;
 import java.io.InputStream;
 import java.lang.*;
 import java.util.*;
@@ -19,7 +17,12 @@ public class CPU {
     public int cu = 0;
 
     public static void main(String[] args) {
-        loadToMemory("factorial");
+        System.out.println("WELCOME TO THE LITTLE MAN COMPUTER JAVA EMULATOR");
+        System.out.println("BEFORE RUNNING PROGRAMS, MAKE SURE THEY ARE LOCATED IN YOUR OUT AND SRC FOLDERS");
+        System.out.println("Please Enter the name of the Program you would like to run: ");
+        Scanner program = new Scanner(System.in);
+        String name = program.nextLine();
+        loadToMemory(name);
         for(Integer i : MainMemory) {
             if(i!=0) {
                 System.out.println(Integer.toBinaryString(i));
@@ -84,9 +87,11 @@ public class CPU {
                 if (l.equals("OUT")) {
                     MainMemory[num] = 0b1111000000000;
 
-                } else if(l.equals("INP")) {
+                }
+                else if(l.equals("INP")) {
                     MainMemory[num] = 0b1001000000000;
-                }else if(l.equals("HLT")) {
+                }
+                else if(l.equals("HLT")) {
                     MainMemory[num] = 0b1010000000000;
                 }
                 else {
@@ -137,7 +142,7 @@ public class CPU {
             return 0b1001000000000;
         }
         if(strings[1].equals("HLT")) {
-            return 0b1010000000000;5
+            return 0b1010000000000;
         }
 
         try {
