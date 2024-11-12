@@ -1,4 +1,5 @@
 
+import java.io.Console;
 import java.io.InputStream;
 import java.lang.*;
 import java.util.*;
@@ -19,6 +20,11 @@ public class CPU {
 
     public static void main(String[] args) {
         loadToMemory("factorial");
+        for(Integer i : MainMemory) {
+            if(i!=0) {
+                System.out.println(Integer.toBinaryString(i));
+            }
+        }
         new CPU().Fetch();
     }
 
@@ -33,6 +39,8 @@ public class CPU {
         instructSet.put("BRP", 0b0110);//Branches to the given instruction id the content in the ACC is greater than 0
         instructSet.put("BRA", 0b0111);//Branched to the given data location no matter what
         instructSet.put("DAT", 0b1000);//Allocates a data location with the given name
+        instructSet.put("INP", 0b1001);//Allows the user to input an integer value and stores it in the ACC
+        instructSet.put("HLT", 0b1010);//Stops the Program
 
 
         InputStream inputStream = CPU.class.getClassLoader().getResourceAsStream(f + ".txt");
@@ -76,6 +84,10 @@ public class CPU {
                 if (l.equals("OUT")) {
                     MainMemory[num] = 0b1111000000000;
 
+                } else if(l.equals("INP")) {
+                    MainMemory[num] = 0b1001000000000;
+                }else if(l.equals("HLT")) {
+                    MainMemory[num] = 0b1010000000000;
                 }
                 else {
                     String[] s = l.split(" ");
@@ -94,14 +106,12 @@ public class CPU {
         }
 
 
-        for(int i = 0; i < MainMemory.length; i++) {
-
-                System.out.println(i + ". " + Integer.toBinaryString(MainMemory[i]));
-        }
-
-
-
     }
+
+
+
+
+
     public static int Instruction(String[] s) {
         int opcode = instructSet.get(s[0])<<9;
         int operand =0;
@@ -122,6 +132,12 @@ public class CPU {
         int opcode = 0;
         if(strings[1].equals("OUT")) {
             return 0b1111000000000;
+        }
+        if(strings[1].equals("INP")) {
+            return 0b1001000000000;
+        }
+        if(strings[1].equals("HLT")) {
+            return 0b1010000000000;5
         }
 
         try {
@@ -271,6 +287,17 @@ public class CPU {
             case 0b0111:
                 pc= mdr&0b011111111;
                 break;
+
+            case 0b1001:
+                System.out.print("Enter an Integer: ");
+                Scanner scan = new Scanner(System.in);
+                String s = scan.nextLine();
+                int temp = Integer.parseInt(s);
+                acc = (byte) temp;
+                break;
+            case 0b1010:
+                System.out.println("Program Ended.");
+                return;
             case 0b1111:
                 System.out.println("OUTPUT: " + acc);
                 break;
